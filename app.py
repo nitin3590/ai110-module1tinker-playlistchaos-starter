@@ -202,6 +202,9 @@ def profile_sidebar():
             max_value=10,
             value=int(profile.get("hype_min_energy", 7)),
         )
+        # ensure thresholds make sense
+        if profile["hype_min_energy"] < profile.get("chill_max_energy", 0):
+            profile["chill_max_energy"] = profile["hype_min_energy"]
     with col2:
         profile["chill_max_energy"] = st.sidebar.slider(
             "Chill max energy",
@@ -209,11 +212,20 @@ def profile_sidebar():
             max_value=10,
             value=int(profile.get("chill_max_energy", 3)),
         )
+        if profile["chill_max_energy"] > profile.get("hype_min_energy", 10):
+            profile["hype_min_energy"] = profile["chill_max_energy"]
 
+    # keep current favorite genre selected if possible
+    genre_options = ["rock", "lofi", "pop", "jazz", "electronic", "ambient", "other"]
+    current_fav = profile.get("favorite_genre", "rock")
+    try:
+        idx = genre_options.index(current_fav)
+    except ValueError:
+        idx = 0
     profile["favorite_genre"] = st.sidebar.selectbox(
         "Favorite genre",
-        options=["rock", "lofi", "pop", "jazz", "electronic", "ambient", "other"],
-        index=0,
+        options=genre_options,
+        index=idx,
     )
 
     profile["include_mixed"] = st.sidebar.checkbox(
